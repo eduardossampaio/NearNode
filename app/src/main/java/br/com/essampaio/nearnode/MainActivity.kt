@@ -21,18 +21,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.essampaio.nearnode.data.Node
 import br.com.essampaio.nearnode.ui.theme.NearNodeTheme
-import kotlinx.coroutines.flow.flowOf
 import org.koin.compose.viewmodel.koinViewModel
 
 class MainActivity : ComponentActivity() {
@@ -96,8 +94,8 @@ fun MainScreenContent(state: ViewContactsViewModelState,
         }
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(state.availableContacts) { contact ->
-                ContactItem(contact)
+            items(state.nodesFound) { contact ->
+                NodeItem(contact)
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             }
         }
@@ -106,15 +104,15 @@ fun MainScreenContent(state: ViewContactsViewModelState,
 }
 
 @Composable
-fun ContactItem(contact: Contact) {
+fun NodeItem(node: Node) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = contact.name,
+            text = node.name,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = contact.ip,
+            text = node.ipAddress,
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.secondary
         )
@@ -130,8 +128,8 @@ fun GreetingPreview() {
             ViewContactsViewModelState(
                 AvailableStatus.ONLINE,
                 listOf(
-                    Contact("User 1", "192.168.0.1"),
-                    Contact("User 2", "192.168.0.2"),
+                    Node("User 1", "192.168.0.1", 9876),
+                    Node("User 2", "192.168.0.2",9876),
                 )
             )
         ){
