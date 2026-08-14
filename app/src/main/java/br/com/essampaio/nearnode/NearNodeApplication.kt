@@ -1,10 +1,15 @@
 package br.com.essampaio.nearnode
 
 import android.app.Application
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import br.com.essampaio.nearnode.data.repository.ProfileRepositoryImpl
+import br.com.essampaio.nearnode.database.NearNodeDatabase
+import br.com.essampaio.nearnode.domain.repository.ProfileRepository
 import br.com.essampaio.nearnode.data.service.AndroidDeviceIdentificationService
+import br.com.essampaio.nearnode.data.service.nsdService.impl.NSDServiceImpl
 import br.com.essampaio.nearnode.domain.service.DeviceIdentificationService
 import br.com.essampaio.nearnode.domain.service.nsdService.NSDService
-import br.com.essampaio.nearnode.domain.service.nsdService.impl.NSDServiceImpl
+
 import br.com.essampaio.nearnode.domain.usecase.BecomeAvailableUseCase
 import br.com.essampaio.nearnode.domain.usecase.BecomeUnavailableUseCase
 import br.com.essampaio.nearnode.domain.usecase.DiscoveryNearbyUseCase
@@ -18,10 +23,16 @@ class NearNodeApplication : Application() {
     val appModule = module {
         viewModelOf(::ViewContactsViewModel)
 
+        single {
+            val driver = AndroidSqliteDriver(NearNodeDatabase.Schema, get(), "nearnode.db")
+            NearNodeDatabase(driver)
+        }
+
+        factory<ProfileRepository> { ProfileRepositoryImpl(get(), get()) }
         factory<NSDService> { NSDServiceImpl(get(), get()) }
         factory<DeviceIdentificationService> { AndroidDeviceIdentificationService(get()) }
-        factory { BecomeAvailableUseCase(get()) }
-        factory { BecomeUnavailableUseCase(get()) }
+        factory { BecomeAvailableUseCase(get(),get()) }
+        factory { BecomeUnavailableUseCase(get(), get()) }
         factory { DiscoveryNearbyUseCase(get()) }
     }
     override fun onCreate() {

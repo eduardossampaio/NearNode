@@ -1,4 +1,4 @@
-package br.com.essampaio.nearnode.domain.service.nsdService.impl
+package br.com.essampaio.nearnode.data.service.nsdService.impl
 
 import android.content.Context
 import android.net.nsd.NsdManager
