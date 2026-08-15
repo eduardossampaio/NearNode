@@ -1,0 +1,24 @@
+CREATE TABLE MessageEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    senderId TEXT NOT NULL,
+    receiverId TEXT NOT NULL,
+    content TEXT NOT NULL,
+    timestamp INTEGER NOT NULL
+);
+
+insertMessage:
+INSERT INTO MessageEntity(id, senderId, receiverId, content, timestamp)
+VALUES ?;
+
+getMessagesWithContact:
+SELECT * FROM MessageEntity
+WHERE (senderId = :myId AND receiverId = :contactId) OR (senderId = :contactId AND receiverId = :myId)
+ORDER BY timestamp ASC;
+
+-- Simplified query to get latest messages
+-- We might need to join with Profile to get contact names
+getLatestMessages:
+SELECT * FROM MessageEntity
+GROUP BY CASE WHEN senderId < receiverId THEN senderId || '-' || receiverId ELSE receiverId || '-' || senderId END
+HAVING timestamp = MAX(timestamp)
+ORDER BY timestamp DESC;

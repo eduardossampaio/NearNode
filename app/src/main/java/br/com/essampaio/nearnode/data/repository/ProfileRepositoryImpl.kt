@@ -2,7 +2,7 @@ package br.com.essampaio.nearnode.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import br.com.essampaio.nearnode.AvailableStatus
+import br.com.essampaio.nearnode.domain.model.AvailableStatus
 import br.com.essampaio.nearnode.database.NearNodeDatabase
 import br.com.essampaio.nearnode.database.ProfileEntity
 import br.com.essampaio.nearnode.domain.model.Profile

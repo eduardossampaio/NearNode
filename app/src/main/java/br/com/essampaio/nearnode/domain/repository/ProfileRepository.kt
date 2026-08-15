@@ -1,6 +1,6 @@
 package br.com.essampaio.nearnode.domain.repository
 
-import br.com.essampaio.nearnode.AvailableStatus
+import br.com.essampaio.nearnode.domain.model.AvailableStatus
 import br.com.essampaio.nearnode.domain.model.Profile
 import kotlinx.coroutines.flow.Flow
 

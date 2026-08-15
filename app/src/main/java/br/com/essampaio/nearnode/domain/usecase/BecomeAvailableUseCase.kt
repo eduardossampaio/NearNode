@@ -1,7 +1,7 @@
 package br.com.essampaio.nearnode.domain.usecase
 
 
-import br.com.essampaio.nearnode.AvailableStatus
+import br.com.essampaio.nearnode.domain.model.AvailableStatus
 import br.com.essampaio.nearnode.domain.repository.DiscoveryRepository
 import br.com.essampaio.nearnode.domain.repository.ProfileRepository
 import br.com.essampaio.nearnode.domain.service.nsdService.NSDService

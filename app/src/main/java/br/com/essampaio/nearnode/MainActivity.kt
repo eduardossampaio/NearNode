@@ -4,32 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import br.com.essampaio.nearnode.data.Node
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import br.com.essampaio.nearnode.presentation.MainViewModel
+import br.com.essampaio.nearnode.presentation.navigation.Route
+import br.com.essampaio.nearnode.presentation.screen.chat.ChatScreen
+import br.com.essampaio.nearnode.presentation.screen.listcontact.ListContactScreen
+import br.com.essampaio.nearnode.presentation.screen.newchat.NewChatScreen
+import br.com.essampaio.nearnode.presentation.screen.registration.RegistrationScreen
 import br.com.essampaio.nearnode.ui.theme.NearNodeTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -39,101 +28,62 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NearNodeTheme {
-                MainScreen()
-
+                MainNavigation()
             }
         }
     }
 }
 
 @Composable
-fun MainScreen(){
-    val viewModel = koinViewModel<ViewContactsViewModel>()
+fun MainNavigation(viewModel: MainViewModel = koinViewModel()) {
+    val startDestination by viewModel.startDestination.collectAsState()
+    val navController = rememberNavController()
 
-    val state = viewModel.state.collectAsState()
-    LaunchedEffect(Unit) {
-        viewModel.start()
-    }
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.close()
-        }
-    }
-    MainScreenContent(state.value){action ->
-        viewModel.onAction(action)
-    }
-}
-
-@Composable
-fun MainScreenContent(state: ViewContactsViewModelState,
-                      onAction: (action: ViewContactsViewModelAction) -> Unit) {
-
-    val isSearching = remember { mutableStateOf(false) }
-    Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .padding(20.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+    if (startDestination != null) {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination!!,
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text("status: ${state.status}")
-            Button(onClick = {
-                if(isSearching.value){
-                    onAction(ViewContactsViewModelAction.StopSearch)
-                }else{
-                    onAction(ViewContactsViewModelAction.StartSearch)
-                }
-                isSearching.value = !isSearching.value
-
-            }) { Text( if (isSearching.value) "Stop searching" else "Search") }
-        }
-
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(state.nodesFound) { contact ->
-                NodeItem(contact)
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            }
-        }
-    }
-    }
-}
-
-@Composable
-fun NodeItem(node: Node) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = node.name,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = node.ipAddress,
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.secondary
-        )
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NearNodeTheme {
-        MainScreenContent(
-            ViewContactsViewModelState(
-                AvailableStatus.ONLINE,
-                listOf(
-                    Node("User 1", "192.168.0.1", 9876),
-                    Node("User 2", "192.168.0.2",9876),
+            composable<Route.Registration> {
+                RegistrationScreen(
+                    onRegistrationSuccess = {
+                        navController.navigate(Route.ListContact) {
+                            popUpTo(Route.Registration) { inclusive = true }
+                        }
+                    }
                 )
-            )
-        ){
+            }
 
+            composable<Route.ListContact> {
+                ListContactScreen(
+                    onContactClick = { contactId ->
+                        navController.navigate(Route.Chat(contactId))
+                    },
+                    onNewChatClick = {
+                        navController.navigate(Route.NewChat)
+                    }
+                )
+            }
+
+            composable<Route.NewChat> {
+                NewChatScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onContactClick = { contactId ->
+                        navController.navigate(Route.Chat(contactId)) {
+                            popUpTo(Route.NewChat) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            composable<Route.Chat> { backStackEntry ->
+                val chat: Route.Chat = backStackEntry.toRoute()
+                ChatScreen(
+                    contactId = chat.contactId,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

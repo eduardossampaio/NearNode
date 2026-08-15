@@ -3,6 +3,7 @@ package br.com.essampaio.nearnode
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.essampaio.nearnode.data.Node
+import br.com.essampaio.nearnode.domain.model.AvailableStatus
 import br.com.essampaio.nearnode.domain.service.nsdService.DiscoveryStatus
 import br.com.essampaio.nearnode.domain.service.nsdService.NSDService
 import br.com.essampaio.nearnode.domain.service.nsdService.RegistrationStatus
@@ -11,12 +12,6 @@ import br.com.essampaio.nearnode.domain.usecase.BecomeUnavailableUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-enum class AvailableStatus{
-    ONLINE,
-    OFFLINE
-}
-
 
 data class ViewContactsViewModelState(
     val status: AvailableStatus = AvailableStatus.OFFLINE,
