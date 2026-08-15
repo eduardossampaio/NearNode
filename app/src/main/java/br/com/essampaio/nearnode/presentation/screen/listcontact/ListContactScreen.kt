@@ -6,32 +6,24 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Badge
-import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.essampaio.nearnode.R
+import br.com.essampaio.nearnode.presentation.component.NearNodeTextField
+import br.com.essampaio.nearnode.presentation.component.ProfileAvatar
 import br.com.essampaio.nearnode.ui.theme.NearNodeTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -50,7 +42,6 @@ fun ListContactScreen(
     )
 }
 
-
 @Composable
 fun ListContactContent(
     uiState: ListContactUiState,
@@ -67,15 +58,10 @@ fun ListContactContent(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Color.LightGray)
-                    )
+                    ProfileAvatar()
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "My Messages",
+                        text = stringResource(R.string.list_contact_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -91,7 +77,10 @@ fun ListContactContent(
                 containerColor = MaterialTheme.colorScheme.primary,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.Search, contentDescription = "New Chat")
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = stringResource(R.string.list_contact_new_chat_desc)
+                )
             }
         }
     ) { padding ->
@@ -101,26 +90,20 @@ fun ListContactContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            // Search Bar
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                placeholder = { Text("Search here") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = RoundedCornerShape(24.dp),
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
-                )
-            )
+//            NearNodeTextField(
+//                value = "",
+//                onValueChange = {},
+//                placeholder = { Text(stringResource(R.string.list_contact_search_placeholder)) },
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(horizontal = 16.dp, vertical = 8.dp),
+//                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
+//            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Recent",
+                text = stringResource(R.string.list_contact_recent_label),
                 modifier = Modifier.padding(horizontal = 16.dp),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
@@ -151,12 +134,7 @@ fun ConversationItem(
             .clickable { onContactClick(conversation.contactId) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray)
-        )
+        ProfileAvatar(size = 56.dp)
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -173,7 +151,7 @@ fun ConversationItem(
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = "15 Mins", // TODO: Format timestamp
+                text = stringResource(R.string.list_contact_mins_ago, 15), // TODO: Format timestamp
                 fontSize = 12.sp,
                 color = Color.Gray
             )

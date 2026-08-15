@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import br.com.essampaio.nearnode.domain.model.Message
 import br.com.essampaio.nearnode.domain.repository.MessageRepository
 import br.com.essampaio.nearnode.domain.repository.ProfileRepository
+import br.com.essampaio.nearnode.domain.usecase.BecomeAvailableUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ListContactViewModel(
+    private val becomeAvailableUseCase: BecomeAvailableUseCase,
     private val messageRepository: MessageRepository,
     private val profileRepository: ProfileRepository
 ) : ViewModel() {
@@ -19,9 +21,14 @@ class ListContactViewModel(
     val uiState: StateFlow<ListContactUiState> = _uiState.asStateFlow()
 
     init {
+        becomeOnline()
         loadConversations()
     }
-
+    private fun becomeOnline(){
+        viewModelScope.launch {
+            becomeAvailableUseCase.execute()
+        }
+    }
     private fun loadConversations() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)

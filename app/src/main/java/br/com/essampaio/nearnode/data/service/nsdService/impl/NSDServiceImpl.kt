@@ -4,19 +4,17 @@ import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.net.wifi.WifiManager
-import android.provider.Settings
 import br.com.essampaio.nearnode.data.Node
 import br.com.essampaio.nearnode.domain.service.DeviceIdentificationService
 import br.com.essampaio.nearnode.domain.service.nsdService.DiscoveryStatus
 import br.com.essampaio.nearnode.domain.service.nsdService.NSDService
 import br.com.essampaio.nearnode.domain.service.nsdService.RegistrationStatus
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flatMap
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -43,10 +41,10 @@ class NSDServiceImpl(context: Context, deviceIdentificationService: DeviceIdenti
 
     private val deviceId: String = deviceIdentificationService.getUniqueId()
 
-    var localServiceName: String = ""
 
     // Mutex criado para enfileirar as resoluções de serviço e evitar o travamento do NsdManager
     private val resolveMutex = Mutex()
+    private val currentServiceName = "NearNode-${deviceId}"
 
     private var activeRegistrationListener: NsdManager.RegistrationListener? = null
 
@@ -55,7 +53,7 @@ class NSDServiceImpl(context: Context, deviceIdentificationService: DeviceIdenti
 
         multicastLock.acquire()
         val serviceInfo = NsdServiceInfo().apply {
-            serviceName = "NearNode-${deviceId}"
+            serviceName = currentServiceName
             serviceType = nsdServiceType
             setPort(port)
         }
@@ -63,10 +61,10 @@ class NSDServiceImpl(context: Context, deviceIdentificationService: DeviceIdenti
         return suspendCancellableCoroutine { continuation ->
             val registrationListener = object : NsdManager.RegistrationListener {
                 override fun onServiceRegistered(nsdServiceInfo: NsdServiceInfo) {
-                    localServiceName = nsdServiceInfo.serviceName
+
                     activeRegistrationListener = this
                     if (continuation.isActive) {
-                        continuation.resume(RegistrationStatus.Registered(localServiceName))
+                        continuation.resume(RegistrationStatus.Registered(nsdServiceInfo.serviceName))
                     }
                 }
 
@@ -79,7 +77,6 @@ class NSDServiceImpl(context: Context, deviceIdentificationService: DeviceIdenti
 
                 override fun onServiceUnregistered(serviceInfo: NsdServiceInfo) {
                     activeRegistrationListener = null
-                    localServiceName = ""
                 }
 
                 override fun onUnregistrationFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {}
@@ -113,7 +110,7 @@ class NSDServiceImpl(context: Context, deviceIdentificationService: DeviceIdenti
                 // we'll resume immediately or store the continuation.
                 
                 if (multicastLock.isHeld) multicastLock.release()
-                localServiceName = ""
+//                localServiceName = ""
                 activeRegistrationListener = null
                 continuation.resume(RegistrationStatus.Unregistered)
             } catch (e: Exception) {
@@ -122,6 +119,7 @@ class NSDServiceImpl(context: Context, deviceIdentificationService: DeviceIdenti
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun discoverServices(): Flow<DiscoveryStatus> {
         return discoverServicesInNSDService()
             .map { status ->
@@ -166,7 +164,8 @@ class NSDServiceImpl(context: Context, deviceIdentificationService: DeviceIdenti
             override fun onServiceFound(serviceInfo: NsdServiceInfo) {
                 when {
 
-                    serviceInfo.serviceName == localServiceName -> return
+
+                    serviceInfo.serviceName == currentServiceName -> return
 
                     serviceInfo.serviceType.contains(nsdServiceType) -> {
 

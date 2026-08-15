@@ -11,22 +11,25 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.essampaio.nearnode.R
 import br.com.essampaio.nearnode.domain.model.Message
+import br.com.essampaio.nearnode.presentation.component.NearNodeTextField
+import br.com.essampaio.nearnode.presentation.component.ProfileAvatar
 import br.com.essampaio.nearnode.ui.theme.BubbleReceived
 import br.com.essampaio.nearnode.ui.theme.BubbleSent
 import br.com.essampaio.nearnode.ui.theme.NearNodeTheme
+import br.com.essampaio.nearnode.ui.theme.StatusOnline
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -46,7 +49,7 @@ fun ChatScreen(
     )
 }
 
-@OptIn( ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatContent(
     uiState: ChatUiState,
@@ -59,27 +62,32 @@ fun ChatContent(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(Color.LightGray)
-                        )
+                        ProfileAvatar(size = 32.dp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(text = uiState.contactName, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "Active now", fontSize = 12.sp, color = Color(0xFF4CAF50))
+                            Text(
+                                text = stringResource(R.string.chat_active_now),
+                                fontSize = 12.sp,
+                                color = StatusOnline
+                            )
                         }
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.new_chat_back_desc)
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = { /* TODO */ }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.chat_more_options_desc)
+                        )
                     }
                 }
             )
@@ -151,18 +159,11 @@ fun ChatInput(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
+            NearNodeTextField(
                 value = text,
                 onValueChange = onTextChanged,
-                placeholder = { Text("Type something") },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFF5F5F5),
-                    unfocusedContainerColor = Color(0xFFF5F5F5),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
+                placeholder = { Text(stringResource(R.string.chat_input_placeholder)) },
+                modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))
             FloatingActionButton(
@@ -174,7 +175,7 @@ fun ChatInput(
             ) {
                 Icon(
                     Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Send",
+                    contentDescription = stringResource(R.string.chat_send_desc),
                     modifier = Modifier.size(24.dp)
                 )
             }

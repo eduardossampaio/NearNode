@@ -1,9 +1,7 @@
 package br.com.essampaio.nearnode.presentation.screen.registration
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -12,14 +10,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.essampaio.nearnode.R
+import br.com.essampaio.nearnode.presentation.component.NearNodeTextField
+import br.com.essampaio.nearnode.presentation.component.ProfileAvatar
 import br.com.essampaio.nearnode.ui.theme.NearNodeTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -58,49 +57,29 @@ fun RegistrationContent(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Welcome to NearNode",
+            text = stringResource(R.string.registration_welcome),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Choose your username and profile picture",
+            text = stringResource(R.string.registration_description),
             fontSize = 16.sp,
-            color = Color.Gray
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // Profile Picture Placeholder
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                painter = painterResource(id = android.R.drawable.ic_menu_camera),
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = Color.White
-            )
-        }
+        ProfileAvatar(size = 120.dp)
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        OutlinedTextField(
+        NearNodeTextField(
             value = uiState.username,
             onValueChange = onUsernameChanged,
-            label = { Text("Username") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White,
-            )
+            label = { Text(stringResource(R.string.registration_username_label)) },
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -120,7 +99,7 @@ fun RegistrationContent(
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
             } else {
                 Text(
-                    text = "Register",
+                    text = stringResource(R.string.registration_button_text),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimary

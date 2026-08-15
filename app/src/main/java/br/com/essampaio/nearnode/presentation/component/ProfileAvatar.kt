@@ -1,0 +1,48 @@
+package br.com.essampaio.nearnode.presentation.component
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import br.com.essampaio.nearnode.ui.theme.NearNodeTheme
+
+@Composable
+fun ProfileAvatar(
+    modifier: Modifier = Modifier,
+    size: Dp = 40.dp,
+    backgroundColor: Color = Color.LightGray
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(backgroundColor),
+        contentAlignment = Alignment.Center
+    ) {
+        // Placeholder for now
+        Icon(
+            painter = painterResource(id = android.R.drawable.ic_menu_camera),
+            contentDescription = null,
+            modifier = Modifier.size(size / 2),
+            tint = Color.White
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ProfileAvatarPreview() {
+    NearNodeTheme {
+        ProfileAvatar()
+    }
+}

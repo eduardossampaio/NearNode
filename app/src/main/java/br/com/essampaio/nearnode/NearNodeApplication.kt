@@ -30,7 +30,7 @@ import org.koin.dsl.module
 class NearNodeApplication : Application() {
     val appModule = module {
         viewModelOf(::MainViewModel)
-        viewModelOf(::ViewContactsViewModel)
+//        viewModelOf(::ViewContactsViewModel)
         viewModelOf(::RegistrationViewModel)
         viewModelOf(::ListContactViewModel)
         viewModelOf(::NewChatViewModel)
