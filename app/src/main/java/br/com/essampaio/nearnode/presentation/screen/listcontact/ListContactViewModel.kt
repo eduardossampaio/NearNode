@@ -2,14 +2,24 @@ package br.com.essampaio.nearnode.presentation.screen.listcontact
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.essampaio.nearnode.domain.model.Message
 import br.com.essampaio.nearnode.domain.repository.MessageRepository
 import br.com.essampaio.nearnode.domain.repository.ProfileRepository
 import br.com.essampaio.nearnode.domain.usecase.BecomeAvailableUseCase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+data class ListContactState(
+    val conversations: List<Conversation> = emptyList(),
+    val isLoading: Boolean = false
+)
+
+sealed class ListContactAction {
+    data object LoadConversations : ListContactAction()
+}
 
 class ListContactViewModel(
     private val becomeAvailableUseCase: BecomeAvailableUseCase,
@@ -17,24 +27,34 @@ class ListContactViewModel(
     private val profileRepository: ProfileRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ListContactUiState())
-    val uiState: StateFlow<ListContactUiState> = _uiState.asStateFlow()
+    private val _state = MutableStateFlow(ListContactState())
+    val state: StateFlow<ListContactState> = _state.asStateFlow()
 
-    init {
-        becomeOnline()
-        loadConversations()
-    }
-    private fun becomeOnline(){
+    private var loadJob: Job? = null
+
+    fun start() {
         viewModelScope.launch {
             becomeAvailableUseCase.execute()
         }
+        onAction(ListContactAction.LoadConversations)
     }
+
+    fun stop() {
+        loadJob?.cancel()
+    }
+
+    fun onAction(action: ListContactAction) {
+        when (action) {
+            ListContactAction.LoadConversations -> loadConversations()
+        }
+    }
+
     private fun loadConversations() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             messageRepository.getLatestMessages().collect { messages ->
                 val conversations = messages.map { message ->
-                    // For now, using senderId/receiverId as name if profile not found
                     Conversation(
                         contactId = if (message.senderId == "me") message.receiverId else message.senderId,
                         contactName = "User ${if (message.senderId == "me") message.receiverId else message.senderId}",
@@ -42,16 +62,11 @@ class ListContactViewModel(
                         timestamp = message.timestamp
                     )
                 }
-                _uiState.value = _uiState.value.copy(conversations = conversations, isLoading = false)
+                _state.update { it.copy(conversations = conversations, isLoading = false) }
             }
         }
     }
 }
-
-data class ListContactUiState(
-    val conversations: List<Conversation> = emptyList(),
-    val isLoading: Boolean = false
-)
 
 data class Conversation(
     val contactId: String,

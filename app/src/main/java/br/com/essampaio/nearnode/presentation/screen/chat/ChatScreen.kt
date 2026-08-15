@@ -11,9 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,23 +37,31 @@ fun ChatScreen(
     onBackClick: () -> Unit,
     viewModel: ChatViewModel = koinViewModel { parametersOf(contactId) }
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.start()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.stop()
+        }
+    }
 
     ChatContent(
-        uiState = uiState,
+        state = state,
         onBackClick = onBackClick,
-        onMessageTextChanged = viewModel::onMessageTextChanged,
-        onSendClick = viewModel::sendMessage
+        onAction = viewModel::onAction
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatContent(
-    uiState: ChatUiState,
+    state: ChatState,
     onBackClick: () -> Unit,
-    onMessageTextChanged: (String) -> Unit,
-    onSendClick: () -> Unit
+    onAction: (ChatAction) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -65,7 +71,7 @@ fun ChatContent(
                         ProfileAvatar(size = 32.dp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text(text = uiState.contactName, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text(text = state.contactName, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             Text(
                                 text = stringResource(R.string.chat_active_now),
                                 fontSize = 12.sp,
@@ -94,9 +100,9 @@ fun ChatContent(
         },
         bottomBar = {
             ChatInput(
-                text = uiState.messageText,
-                onTextChanged = onMessageTextChanged,
-                onSendClick = onSendClick
+                text = state.messageText,
+                onTextChanged = { onAction(ChatAction.OnMessageTextChanged(it)) },
+                onSendClick = { onAction(ChatAction.SendMessage) }
             )
         }
     ) { padding ->
@@ -108,7 +114,7 @@ fun ChatContent(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(uiState.messages) { message ->
+            items(state.messages) { message ->
                 MessageBubble(message = message, isMe = message.senderId == "me")
             }
         }
@@ -188,7 +194,7 @@ fun ChatInput(
 fun ChatPreview() {
     NearNodeTheme {
         ChatContent(
-            uiState = ChatUiState(
+            state = ChatState(
                 messages = listOf(
                     Message("1", "contact", "me", "Hello Vincent, thank you for calling Provide.", 12345),
                     Message("2", "me", "contact", "Perfect, i am really glad to hear that!", 12345)
@@ -196,8 +202,7 @@ fun ChatPreview() {
                 contactName = "Vincent Nelson"
             ),
             onBackClick = {},
-            onMessageTextChanged = {},
-            onSendClick = {}
+            onAction = {}
         )
     }
 }

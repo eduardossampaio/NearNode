@@ -4,10 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,26 +24,34 @@ fun RegistrationScreen(
     onRegistrationSuccess: () -> Unit,
     viewModel: RegistrationViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(uiState.isRegistered) {
-        if (uiState.isRegistered) {
+    LaunchedEffect(Unit) {
+        viewModel.start()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.stop()
+        }
+    }
+
+    LaunchedEffect(state.isRegistered) {
+        if (state.isRegistered) {
             onRegistrationSuccess()
         }
     }
 
     RegistrationContent(
-        uiState = uiState,
-        onUsernameChanged = viewModel::onUsernameChanged,
-        onRegisterClick = viewModel::register
+        state = state,
+        onAction = viewModel::onAction
     )
 }
 
 @Composable
 fun RegistrationContent(
-    uiState: RegistrationUiState,
-    onUsernameChanged: (String) -> Unit,
-    onRegisterClick: () -> Unit
+    state: RegistrationState,
+    onAction: (RegistrationAction) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -76,8 +81,8 @@ fun RegistrationContent(
         Spacer(modifier = Modifier.height(32.dp))
 
         NearNodeTextField(
-            value = uiState.username,
-            onValueChange = onUsernameChanged,
+            value = state.username,
+            onValueChange = { onAction(RegistrationAction.OnUsernameChanged(it)) },
             label = { Text(stringResource(R.string.registration_username_label)) },
             modifier = Modifier.fillMaxWidth()
         )
@@ -85,7 +90,7 @@ fun RegistrationContent(
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = onRegisterClick,
+            onClick = { onAction(RegistrationAction.OnRegisterClick) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -93,9 +98,9 @@ fun RegistrationContent(
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
             ),
-            enabled = !uiState.isLoading && uiState.username.isNotBlank()
+            enabled = !state.isLoading && state.username.isNotBlank()
         ) {
-            if (uiState.isLoading) {
+            if (state.isLoading) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
             } else {
                 Text(
@@ -114,21 +119,8 @@ fun RegistrationContent(
 fun RegistrationPreview() {
     NearNodeTheme {
         RegistrationContent(
-            uiState = RegistrationUiState(username = "John Doe"),
-            onUsernameChanged = {},
-            onRegisterClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RegistrationLoadingPreview() {
-    NearNodeTheme {
-        RegistrationContent(
-            uiState = RegistrationUiState(username = "John Doe", isLoading = true),
-            onUsernameChanged = {},
-            onRegisterClick = {}
+            state = RegistrationState(username = "John Doe"),
+            onAction = {}
         )
     }
 }

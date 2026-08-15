@@ -10,9 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,10 +31,20 @@ fun ListContactScreen(
     onNewChatClick: () -> Unit,
     viewModel: ListContactViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.start()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.stop()
+        }
+    }
 
     ListContactContent(
-        uiState = uiState,
+        state = state,
         onContactClick = onContactClick,
         onNewChatClick = onNewChatClick
     )
@@ -44,7 +52,7 @@ fun ListContactScreen(
 
 @Composable
 fun ListContactContent(
-    uiState: ListContactUiState,
+    state: ListContactState,
     onContactClick: (String) -> Unit,
     onNewChatClick: () -> Unit
 ) {
@@ -90,15 +98,15 @@ fun ListContactContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-//            NearNodeTextField(
-//                value = "",
-//                onValueChange = {},
-//                placeholder = { Text(stringResource(R.string.list_contact_search_placeholder)) },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 16.dp, vertical = 8.dp),
-//                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
-//            )
+            NearNodeTextField(
+                value = "",
+                onValueChange = {},
+                placeholder = { Text(stringResource(R.string.list_contact_search_placeholder)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -115,7 +123,7 @@ fun ListContactContent(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(uiState.conversations) { conversation ->
+                items(state.conversations) { conversation ->
                     ConversationItem(conversation, onContactClick)
                 }
             }
@@ -169,7 +177,7 @@ fun ConversationItem(
 fun ListContactPreview() {
     NearNodeTheme {
         ListContactContent(
-            uiState = ListContactUiState(
+            state = ListContactState(
                 conversations = listOf(
                     Conversation("1", "Vincent Nelson", "Hello how are you...?", 12345, 3),
                     Conversation("2", "Francis Palmer", "Hahahaha thanks, i didnt know", 12345, 0)

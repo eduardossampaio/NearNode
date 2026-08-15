@@ -17,3 +17,12 @@ description: app chat descentralizado que enviar mensagens de nó a nó
   - todas as cores devem estar no arquivo Color.kt
   - sempre que determinado componente aparecer mais de uma vez, coloque-o dentro de presentation/components criando o compnente e o preview
   - mantenha sempre a árvore de componentes o menor possível evitando aninhar componentes desnecessariamente
+- ao criar viewModels
+  - não inicie a viewModel no método construtor
+  - cada viewModel tera um método chamado start() e um método stop()
+  - Ao injetar o viewModel, crie um LaunchEffect para chamar o método start e um DisposableEffect para chamar o método stop
+  - Além to State, cada viewModel terá uma classe Action
+  - Seguir o padrão <ViewModelName>State e <ViewModelName>Action 
+  - Actions deverão ser sealedClass
+  - as viewModels seguirão o padrão MVI, então para cada viewModel tera um método onAction
+  - todas as interações do usuário deverão disparar um Action 
