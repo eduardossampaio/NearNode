@@ -3,8 +3,11 @@ package br.com.essampaio.nearnode.presentation.screen.newchat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.essampaio.nearnode.data.Node
+import br.com.essampaio.nearnode.domain.model.Profile
 import br.com.essampaio.nearnode.domain.service.nsdService.DiscoveryStatus
 import br.com.essampaio.nearnode.domain.service.nsdService.NSDService
+import br.com.essampaio.nearnode.domain.usecase.DiscoveryNearbyUseCase
+import br.com.essampaio.nearnode.domain.usecase.DiscoveryProfileStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class NewChatState(
-    val contacts: List<Node> = emptyList(),
+    val contacts: List<Profile> = emptyList(),
     val isLoading: Boolean = false
 )
 
@@ -22,7 +25,7 @@ sealed class NewChatAction {
 }
 
 class NewChatViewModel(
-    private val nsdService: NSDService
+    private val discoveryNearbyUseCase: DiscoveryNearbyUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(NewChatState())
@@ -48,18 +51,19 @@ class NewChatViewModel(
         discoveryJob?.cancel()
         discoveryJob = viewModelScope.launch {
             _state.update { it.copy(contacts = emptyList(), isLoading = true) }
-            nsdService.discoverServices().collect { status ->
+            discoveryNearbyUseCase.invoke().collect { status ->
                 when (status) {
-                    is DiscoveryStatus.Found -> {
+                    is DiscoveryProfileStatus.Found -> {
                         _state.update { currentState ->
-                            if (currentState.contacts.any { it.name == status.node.name }) {
+                            val profile = status.profile
+                            if (currentState.contacts.any { it.id == profile.id }) {
                                 currentState
                             } else {
-                                currentState.copy(contacts = currentState.contacts + status.node)
+                                currentState.copy(contacts = currentState.contacts + profile)
                             }
                         }
                     }
-                    DiscoveryStatus.Discovering -> {
+                    DiscoveryProfileStatus.Discovering -> {
                         _state.update { it.copy(isLoading = true) }
                     }
                     else -> {

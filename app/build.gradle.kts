@@ -39,6 +39,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "/META-INF/io.netty.versions.properties"
+        }
+    }
 }
 
 dependencies {
@@ -71,6 +78,20 @@ dependencies {
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.sqldelight.android.driver)
     implementation(libs.sqldelight.coroutines.extensions)
+    implementation(libs.netty.socketio)
+    implementation(libs.socketio.client){
+        exclude(group= "org.json", module= "json")
+    }
+
+// Motores principais do Ktor Server
+    implementation("io.ktor:ktor-server-core:2.3.12")
+    implementation("io.ktor:ktor-server-cio:2.3.12") // O salvador da pátria: nativo em Coroutines
+
+    // Para transformar o seu mapOf em JSON automaticamente
+    implementation("io.ktor:ktor-server-content-negotiation:2.3.12")
+    implementation("io.ktor:ktor-serialization-gson:2.3.12")
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }
 
 configurations.all {

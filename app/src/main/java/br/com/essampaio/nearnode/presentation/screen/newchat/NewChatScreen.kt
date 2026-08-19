@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.essampaio.nearnode.R
 import br.com.essampaio.nearnode.data.Node
+import br.com.essampaio.nearnode.domain.model.AvailableStatus
+import br.com.essampaio.nearnode.domain.model.Profile
 import br.com.essampaio.nearnode.presentation.component.ProfileAvatar
 import br.com.essampaio.nearnode.ui.theme.NearNodeTheme
 import br.com.essampaio.nearnode.ui.theme.TextPrimary
@@ -112,25 +114,25 @@ fun NewChatContent(
 
 @Composable
 fun ContactItem(
-    node: Node,
+    node: Profile,
     onContactClick: (String) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onContactClick(node.name) },
+            .clickable { onContactClick(node.username) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         ProfileAvatar(size = 48.dp)
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             Text(
-                text = node.name,
+                text = node.username,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = node.ipAddress,
+                text = node.ip,
                 fontSize = 12.sp,
             )
         }
@@ -144,8 +146,8 @@ fun NewChatPreview() {
         NewChatContent(
             state = NewChatState(
                 contacts = listOf(
-                    Node("Vincent Nelson", "192.168.1.1", 9876),
-                    Node("Francis Palmer", "192.168.1.2", 9876)
+                    Profile(id="123", username = "Vincent Nelson", ip = "192.168.1.1", status = AvailableStatus.ONLINE),
+                    Profile(id="abc", username = "Francis Palmer", ip = "192.168.1.2", status = AvailableStatus.OFFLINE),
                 ),
                 isLoading = true
             ),

@@ -10,6 +10,8 @@ kotlin = "2.2.10"
 composeBom = "2026.02.01"
 koin-bom = "4.1.1"  # Stable version
 sqldelight = "2.3.2"
+netty-socketio = "2.0.12"
+socketio-client = "2.1.1"
 navigationCompose = "2.9.0-alpha06"
 kotlinxSerializationJson = "1.8.0"
 coil = "3.1.0"
@@ -34,6 +36,8 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+netty-socketio = { group = "com.corundumstudio.socketio", name = "netty-socketio", version.ref = "netty-socketio" }
+socketio-client = { group = "io.socket", name = "socket.io-client", version.ref = "socketio-client" }
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }
