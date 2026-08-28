@@ -11,13 +11,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.essampaio.nearnode.R
-import br.com.essampaio.nearnode.data.Node
 import br.com.essampaio.nearnode.domain.model.AvailableStatus
 import br.com.essampaio.nearnode.domain.model.Profile
 import br.com.essampaio.nearnode.presentation.component.ProfileAvatar
@@ -46,7 +46,10 @@ fun NewChatScreen(
     NewChatContent(
         state = state,
         onBackClick = onBackClick,
-        onContactClick = onContactClick
+        onContactClick = onContactClick,
+        onAction = { action->
+            viewModel.onAction(action)
+        }
     )
 }
 
@@ -55,9 +58,11 @@ fun NewChatScreen(
 fun NewChatContent(
     state: NewChatState,
     onBackClick: () -> Unit,
-    onContactClick: (String) -> Unit
+    onContactClick: (String) -> Unit,
+    onAction: (NewChatAction) -> Unit
 ) {
     Scaffold(
+        modifier = Modifier.safeContentPadding(),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.new_chat_title)) },
@@ -66,6 +71,29 @@ fun NewChatContent(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.new_chat_back_desc)
+                        )
+                    }
+                },
+                actions = {
+                    Button(
+                        colors = ButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = TextPrimary,
+                            disabledContainerColor = Color.Transparent,
+                            disabledContentColor = TextPrimary,
+                        ),
+                        onClick = {
+                            if(state.isDiscovering){
+                                onAction(NewChatAction.StopDiscovery)
+                            }else {
+                                onAction(NewChatAction.StartDiscovery)
+                            }
+                        }) {
+                        Text(
+                            text =  if(state.isDiscovering)
+                                    stringResource(R.string.list_contact_stop_discover)
+                            else
+                                stringResource(R.string.list_contact_discover)
                         )
                     }
                 }
@@ -78,7 +106,7 @@ fun NewChatContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            if (state.isLoading) {
+            if (state.isDiscovering) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -88,7 +116,7 @@ fun NewChatContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.list_contact_search_placeholder), // Reuse search placeholder or add specific
+                        text = stringResource(R.string.list_contact_search_placeholder),
                         color = TextPrimary
                     )
                     Spacer(modifier = Modifier.size(10.dp))
@@ -149,10 +177,11 @@ fun NewChatPreview() {
                     Profile(id="123", username = "Vincent Nelson", ip = "192.168.1.1", status = AvailableStatus.ONLINE),
                     Profile(id="abc", username = "Francis Palmer", ip = "192.168.1.2", status = AvailableStatus.OFFLINE),
                 ),
-                isLoading = true
+                isDiscovering = true
             ),
             onBackClick = {},
-            onContactClick = {}
+            onContactClick = {},
+            onAction = {}
         )
     }
 }

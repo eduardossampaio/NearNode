@@ -11,6 +11,9 @@ UPDATE profileEntity SET status = ? WHERE id = ?;
 getProfile:
 SELECT * FROM profileEntity WHERE id = ?;
 
+getOtherProfiles:
+SELECT * FROM profileEntity WHERE id != ?;
+
 insertOrUpdate:
 INSERT OR REPLACE INTO profileEntity(id, username, ip, status)
 VALUES ?;

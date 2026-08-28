@@ -19,6 +19,7 @@ import br.com.essampaio.nearnode.domain.service.nsdService.NSDService
 import br.com.essampaio.nearnode.domain.usecase.BecomeAvailableUseCase
 import br.com.essampaio.nearnode.domain.usecase.BecomeUnavailableUseCase
 import br.com.essampaio.nearnode.domain.usecase.DiscoveryNearbyUseCase
+import br.com.essampaio.nearnode.domain.usecase.ListContactsUseCase
 import br.com.essampaio.nearnode.presentation.MainViewModel
 import br.com.essampaio.nearnode.presentation.screen.chat.ChatViewModel
 import br.com.essampaio.nearnode.presentation.screen.listcontact.ListContactViewModel
@@ -68,6 +69,7 @@ class NearNodeApplication : Application() {
         factory { BecomeAvailableUseCase(get(), get(), get()) }
         factory { BecomeUnavailableUseCase(get(), get(), get()) }
         factory { DiscoveryNearbyUseCase(get(), get(), get()) }
+        factory { ListContactsUseCase(get(),get()) }
     }
     override fun onCreate() {
         super.onCreate()

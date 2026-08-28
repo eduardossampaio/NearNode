@@ -8,10 +8,14 @@
 
     <!-- List Contact -->
     <string name="list_contact_title">My Messages</string>
-    <string name="list_contact_search_placeholder">Search here</string>
+    <string name="list_contact_search_placeholder">Searching</string>
     <string name="list_contact_recent_label">Recent</string>
     <string name="list_contact_new_chat_desc">New Chat</string>
     <string name="list_contact_mins_ago">%1$d Mins</string>
+    <string name="list_contact_start_search">Start Search</string>
+    <string name="list_contact_stop_search">Stop Search</string>
+    <string name="list_contact_discover">Discover</string>
+    <string name="list_contact_stop_discover">Stop Discover</string>
 
     <!-- New Chat -->
     <string name="new_chat_title">New Chat</string>

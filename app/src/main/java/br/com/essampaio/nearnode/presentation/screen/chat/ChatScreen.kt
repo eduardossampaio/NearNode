@@ -64,6 +64,7 @@ fun ChatContent(
     onAction: (ChatAction) -> Unit
 ) {
     Scaffold(
+        modifier = Modifier.safeContentPadding(),
         topBar = {
             TopAppBar(
                 title = {
@@ -88,14 +89,7 @@ fun ChatContent(
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = { /* TODO */ }) {
-                        Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = stringResource(R.string.chat_more_options_desc)
-                        )
-                    }
-                }
+
             )
         },
         bottomBar = {

@@ -23,7 +23,7 @@ class MainViewModel(
 
     private fun checkRegistration() {
         viewModelScope.launch {
-            val profile = profileRepository.getCurrentProfile().first()
+            val profile = profileRepository.getCurrentProfile()
             if (profile != null) {
                 _startDestination.value = Route.ListContact
             } else {

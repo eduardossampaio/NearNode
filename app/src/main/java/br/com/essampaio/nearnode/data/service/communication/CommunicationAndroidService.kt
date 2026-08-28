@@ -65,7 +65,7 @@ class CommunicationAndroidService : Service() {
                     routing {
                         get("/info") {
                             // Essa coroutine já roda de forma segura no Ktor
-                            val profile = profileRepository.getCurrentProfile().firstOrNull()
+                            val profile = profileRepository.getCurrentProfile()
 
                             if (profile != null) {
                                 val info = mapOf(

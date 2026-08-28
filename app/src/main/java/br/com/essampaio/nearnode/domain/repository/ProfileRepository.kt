@@ -8,7 +8,8 @@ interface ProfileRepository {
     suspend fun updateStatus(id: String, status: AvailableStatus)
 
     suspend fun updateCurrentStatus(status: AvailableStatus)
-    fun getProfile(id: String): Flow<Profile?>
-    fun getCurrentProfile(): Flow<Profile?>
+    fun getProfile(id: String): Profile?
+    fun getCurrentProfile(): Profile?
+    fun getOtherProfiles(): List<Profile>
     suspend fun saveProfile(profile: Profile)
 }

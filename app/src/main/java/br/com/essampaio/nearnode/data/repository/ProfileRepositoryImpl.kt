@@ -1,6 +1,7 @@
 package br.com.essampaio.nearnode.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import br.com.essampaio.nearnode.domain.model.AvailableStatus
 import br.com.essampaio.nearnode.database.NearNodeDatabase
@@ -27,23 +28,36 @@ class ProfileRepositoryImpl(
         updateStatus(deviceIdentificationService.getUniqueId(),status)
     }
 
-    override fun getCurrentProfile(): Flow<Profile?> {
+    override fun getCurrentProfile(): Profile? {
         return getProfile(deviceIdentificationService.getUniqueId())
     }
 
-    override fun getProfile(id: String): Flow<Profile?> {
-        return queries.getProfile(id)
-            .asFlow()
-            .mapToOneOrNull(Dispatchers.IO)
+    override fun getOtherProfiles(): List<Profile> {
+        return queries.getOtherProfiles(deviceIdentificationService.getUniqueId())
+            .executeAsList()
             .map { entity ->
-                entity?.let {
+
                     Profile(
-                        id = it.id,
-                        username = it.username,
-                        ip = it.ip,
-                        status = AvailableStatus.valueOf(it.status)
+                        id = entity.id,
+                        username = entity.username,
+                        ip = entity.ip,
+                        status = AvailableStatus.valueOf(entity.status)
                     )
-                }
+
+            }
+    }
+
+    override fun getProfile(id: String): Profile?{
+        return queries.getProfile(id)
+            .executeAsOne()
+            .run {
+                    Profile(
+                        id = id,
+                        username = username,
+                        ip = ip,
+                        status = AvailableStatus.valueOf(status)
+                    )
+
             }
     }
 

@@ -57,6 +57,7 @@ fun ListContactContent(
     onNewChatClick: () -> Unit
 ) {
     Scaffold(
+        modifier = Modifier.safeContentPadding(),
         topBar = {
             Row(
                 modifier = Modifier
